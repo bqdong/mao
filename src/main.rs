@@ -1,17 +1,12 @@
 use std::env;
-use std::process::ExitCode;
+
+use rustix::fs;
 
 #[cfg(target_os = "linux")]
-fn main() -> ExitCode {
-    for argument in env::args() {
-        println!("{argument}");
-    }
-
-    let key = "HOME";
-    match env::var(key) {
-        Ok(val) => println!("{key}: {val:?}"),
-        Err(e) => println!("error {key}, {e}"),
-    }
-
-    ExitCode::SUCCESS
+fn main() {
+    let mut cmd_args = env::args();
+    let path = cmd_args.nth(1).unwrap();
+    let fd = fs::open(path, fs::OFlags::RDONLY, fs::Mode::empty()).unwrap();
+    let stat = fs::fstat(fd).unwrap();
+    print!("{stat:?}");
 }
